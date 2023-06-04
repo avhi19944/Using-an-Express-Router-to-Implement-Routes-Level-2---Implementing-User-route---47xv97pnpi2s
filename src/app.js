@@ -20,6 +20,33 @@ const product = JSON.parse(
 router.patch('/api/v1/product/:id', (req, res) => {
   try {
     //Write your code here
+    const {title,price} = req.body;
+
+    for(let i in product){
+      console.log(i);
+       if(product[i].id == req.params.id){
+          product[i].title = title || product[i].title;
+          product[i].price = price || product[i].price;
+
+          fs.writeFile(`${__dirname}/../dev-data/product.json`,JSON.stringify(product),()=>{
+               res.status(201).json({
+                message:'success',
+                data:{
+                  product
+                }
+              })
+          })
+          return;
+       }
+      
+    }
+
+     return res.status(404).json({
+      message:'Product Not Found',
+      status:'Error'
+    })
+
+
   } catch (error) {
     console.log(error);
     res.status(400).json({
@@ -33,6 +60,22 @@ router.patch('/api/v1/product/:id', (req, res) => {
 router.delete('/api/v1/product/:id', (req, res) => {
   try {
     //Write your code here
+    const products = product.find((obj)=>obj.id == req.params.id);
+    if(!products){
+      return res.status(404).json({
+        status:'Error',
+        message:'Product Deletion Failed'
+      })
+    }
+    const filteredProducts = product.filter((item)=>item.id!=req.params.id);
+    fs.writeFile(`${__dirname}/../dev-data/product.json`,JSON.stringify(filteredProducts),()=>{
+       res.status(201).json({
+        status:'success',
+        data:{
+          product:filteredProducts
+        }
+       })
+    })
   } catch (error) {
     console.log(error);
     res.status(400).json({
